@@ -1,5 +1,4 @@
 #include <Arduino.h>
-#include "EdgeBox-ESP-100.h"
 #include <DallasTemperature.h>
 
 // #define TIME_ZONE_OFFSET_HRS            (-7)  /* Ensenada, México */
@@ -9,24 +8,21 @@
 #define HIGH_TEMP_LIMIT 60
 #define LOW_TEMP_LIMIT -40
 
-// setting PWM properties
-#define AIR_PWM     27   
-#define FREQ        5000 
-#define AIR_PIN     AO_0  
-#define RESOLUTION  8    
+// setting PWM properties  
+#define AIR_PIN     0  
 
 //------------ IO's    -------------------------------------------------------------------->
-#define STAGE_1_IO  DO_0   
-#define STAGE_2_IO  DO_1   
-#define STAGE_3_IO  DO_2   
-#define VALVE_IO    DO_3   
-#define FAN_IO      DO_4   
+#define STAGE_1_IO  0   
+#define STAGE_2_IO  1   
+#define STAGE_3_IO  2   
+#define VALVE_IO    3   
+#define FAN_IO      4   
 
 #define A0_5  27                            
 
-#define STOP_IO     DI_0    
-#define DLY_S_IO    DI_1    
-#define START_IO    DI_2    
+#define STOP_IO     0    
+#define DLY_S_IO    1    
+#define START_IO    2    
 
 #define A0    13 //ONE_WIRE_BUS  
 
@@ -44,7 +40,6 @@
 #define AVG_RESOLUTION 1000   //in ms the sampling for the Ts measure
 
 DeviceAddress ADDRESS_TA = { 0x28, 0x8C, 0x4B, 0xAD, 0x27, 0x19, 0x01, 0xCA }; // Ta
-// DeviceAddress ADDRESS_TC1 = { 0x28, 0xA7, 0x93, 0x8B, 0x0B, 0x00, 0x00, 0xB2 }; // Ta
 DeviceAddress ADDRESS_TS = { 0x28, 0x78, 0x98, 0x8B, 0x0B, 0x00, 0x00, 0x22 }; // Ts
 DeviceAddress ADDRESS_TC = { 0x28, 0xDA, 0xB6, 0xF7, 0x3A, 0x19, 0x01, 0x85 }; // Tc 
 DeviceAddress ADDRESS_TI = { 0x28, 0x5A, 0xD3, 0x2A, 0x0D, 0x00, 0x00, 0x94 }; // Ti
@@ -55,6 +50,13 @@ DeviceAddress ADDRESS_TI = { 0x28, 0x5A, 0xD3, 0x2A, 0x0D, 0x00, 0x00, 0x94 }; /
 //---- timing settings -----////////////////////////////////////////////////////////////////////////////////
 
 #define MINS 60000
+
+
+//----- RTD's settings -----////////////////////////////////////////////////////////////////////////////////
+#define RREF      400.0
+// The 'nominal' 0-degrees-C resistance of the sensor
+// 100.0 for PT100, 1000.0 for PT1000
+#define RNOMINAL  100.0
 
 //------------ structure definitions an flags -------------------------------------------------------->
 // Fan F1 and sprinkler S1 value

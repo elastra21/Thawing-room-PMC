@@ -1,13 +1,14 @@
 #include "MqttClient.h"
 #include "secrets.h"
+#include <WiFi.h>
 
-WiFiClient esp32Client;
-PubSubClient mqttClient(esp32Client);
+WiFiClient client;
+PubSubClient mqttClient(client);
 
 // void subscribeReceive(char* topic, byte* payload, unsigned int length);
 
 void MqttClient::connect() {
-  mqttClient.setServer(IP_ADDRESS, PORT);
+  mqttClient.setServer(IP_ADDRESS, MQTT_PORT);
   if (mqttClient.connect(USERNAME)) {
     Serial.println("Connection has been established, well done");
     subscribeRoutine();
@@ -48,8 +49,8 @@ void MqttClient::loop() {
   mqttClient.loop();
 }
 
-void MqttClient::setCallback(std::function<void(char *, uint8_t *, unsigned int)> callback) {
-  mqttClient.setCallback(callback);
+void MqttClient::setCallback(void (*callback)(char*, uint8_t*, unsigned int) ) {
+  mqttClient.setCallback((*callback));
 }
 
 void MqttClient::subscribeRoutine() {
@@ -93,9 +94,8 @@ void MqttClient::subscribeRoutine() {
 }
 
 void MqttClient::publishData(String topic, double value) {
-  char value_buffer[8];
-  dtostrf(value, 1, 2, value_buffer);
-  mqttClient.publish(topic.c_str(), value_buffer);
+  const String value_buffer = String(value,4);
+  mqttClient.publish(topic.c_str(), value_buffer.c_str());
 }
 
 void MqttClient::publishData(String topic, String value) {

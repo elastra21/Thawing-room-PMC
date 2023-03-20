@@ -1,6 +1,5 @@
 #ifndef MY_MQTT_H
 #define MY_MQTT_H
-#include <WiFiClientSecure.h>
 #include <PubSubClient.h>
 
 //             subscribe topics    -------------------------------------------------------------------->
@@ -72,7 +71,7 @@ class MqttClient {
     bool getConnectionStatus();
     void publishData(String topic, double value);
     void publishData(String topic, String value);
-    void setCallback(std::function<void (char *, uint8_t *, unsigned int)> callback);
+    void setCallback(void (*callback)(char*, uint8_t*, unsigned int));
   private:
     bool no_service_available = true;
     bool last_connection_state = false;
