@@ -147,9 +147,11 @@ void callback(char *topic, byte *payload, unsigned int len);  //callback functio
 
 void setup() {
   Serial.begin(115200);
-
+ 
   Wire.begin();
-  analog_inputs.begin();
+  temp_probes.rtd.begin(THREE_WIRE);
+  temp_probes.enableRTD();
+  // analog_inputs.begin();
   // if (!digital_inputs.init()) {
   //   Serial.println("Digital input GPIO expander initialization fail!!");
   // }
@@ -190,6 +192,7 @@ void loop() {
   if (!wifi.isConnected()) {
     wifi.reconnect();
     delay(2000);
+    Serial.println("mamo");
     return;
   }
 
@@ -197,7 +200,7 @@ void loop() {
 
   if (mqtt.isServiceAvailable()) mqtt.loop();
 
-  // updateTemperature();
+  updateTemperature();
 
   // if (N_chooseTs == 1) TC2 = analogRead(A0);                                // Condition to choose if Ts is a IR sensor or OneWire sensor
 
@@ -242,7 +245,7 @@ void loop() {
     avg_ts = buffer_sum / buffer_len;
 
     mqtt.publishData(AVG_TS_TOPIC, temp_data.AvgTs_N);
-    Serial.println("Temp data published");
+    // Serial.println("Temp data published");
     ts_avg_timer = millis();
   }
 
@@ -927,15 +930,26 @@ void setUpRTC() {
 
 void updateTemperature() {
   DateTime now = rtc.now();
-  sensors1.requestTemperatures();
 
-  uint16_t TA_analog = analog_inputs.readADC_SingleEnded(TA_AI);  // Ta
-  TA = (TA_analog - 0) * (50 + 50) / (1024 - 0) - 50;
-  uint16_t TS_analog = analog_inputs.readADC_SingleEnded(TS_AI);  // Ts
-  TS = (TS_analog - 0) * (50 + 50) / (1024 - 0) - 50;
-  uint16_t TC_analog = analog_inputs.readADC_SingleEnded(TC_AI);  // Tc
-  TC = (TC_analog - 0) * (50 + 50) / (1024 - 0) - 50;
-  TI = sensors1.getTempC(ADDRESS_TI);  // Ti
+  temp_probes.selectChannel(TA_AI);
+  TA = temp_probes.rtd.readTemperature(RNOMINAL, RREF);
+
+  temp_probes.selectChannel(TS_AI);
+  TS = temp_probes.rtd.readTemperature(RNOMINAL, RREF);
+
+  temp_probes.selectChannel(TC_AI);
+  TC = temp_probes.rtd.readTemperature(RNOMINAL, RREF);
+
+
+  // sensors1.requestTemperatures();
+
+  // uint16_t TA_analog = analog_inputs.readADC_SingleEnded(TA_AI);  // Ta
+  // TA = (TA_analog - 0) * (50 + 50) / (1024 - 0) - 50;
+  // uint16_t TS_analog = analog_inputs.readADC_SingleEnded(TS_AI);  // Ts
+  // TS = (TS_analog - 0) * (50 + 50) / (1024 - 0) - 50;
+  // uint16_t TC_analog = analog_inputs.readADC_SingleEnded(TC_AI);  // Tc
+  // TC = (TC_analog - 0) * (50 + 50) / (1024 - 0) - 50;
+  // TI = sensors1.getTempC(ADDRESS_TI);  // Ti
 
   // TC1 = sensors1.getTempC(ADDRESS_TC1);  //PV /Ta
   // TC2 = N_chooseTs ? getIRTemp() : sensors1.getTempC(ADDRESS_TC2);// Ts  // Condition to choose if Ts is a IR sensor or OneWire sensor

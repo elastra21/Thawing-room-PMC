@@ -4,7 +4,7 @@
 // #define SECRET_SSID "GFguestwifi_AP"
 #define SECRET_PASS "Pr0@#17774$$M@f1"
 #define HOST_NAME "el-thawingnator-Portenta"
-#define IP_ADDRESS "192.168.1.113" //previous ip : 10,0,3,21, replace that ip to match the IP of the device where the broker is running
+#define IP_ADDRESS "192.168.1.21" //previous ip : 10,0,3,21, replace that ip to match the IP of the device where the broker is running
 // #define IP_ADDRESS "192.168.1.164" //previous ip : 10,0,3,21, replace that ip to match the IP of the device where the broker is running
 
 
