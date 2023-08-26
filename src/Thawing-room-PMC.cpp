@@ -21,11 +21,13 @@ data_st1 N_st1;  // fan (F1) STAGE 1 on and off time
 data_st2 N_st2;  // fan (F1) and sprinklers (S1) STAGE 2 on and off time
 data_st3 N_st3;  // fan (F1) and sprinklers (S1) STAGE 3 on and off time
 
+
 // State of SPRINKLER 1
 bool S1_state = 0;
 
 // A & B variables
 data_SP N_SP;
+
 float A = 0;
 float B = 0;
 bool R_A = 0;
@@ -147,6 +149,29 @@ void callback(char *topic, byte *payload, unsigned int len);  //callback functio
 
 void setup() {
   Serial.begin(115200);
+  // while (!Serial);
+// delay(1000);
+  // Serial.println("No mames Hugo");
+
+// Default parameters
+  N_st1.N_f1_st1_ontime = 1;
+  N_st1.N_f1_st1_offtime = 40;
+
+  N_st2.N_f1_st2_ontime = 30;
+  N_st2.N_f1_st2_offtime = 10;
+  N_st2.N_s1_st2_ontime = 1;
+  N_st2.N_s1_st2_offtime = 5;
+
+  N_st3.N_f1_st3_ontime = 10;
+  N_st3.N_f1_st3_offtime = 30;
+  N_st3.N_s1_st3_ontime = 1;
+  N_st3.N_s1_st3_offtime = 15;
+
+  N_tset.N_ts_set = 40;
+  N_tset.N_tc_set = 40;
+
+  N_SP.N_A = 0.5;
+  N_SP.N_B = 20; 
  
   Wire.begin();
   temp_probes.rtd.begin(THREE_WIRE);
@@ -165,7 +190,7 @@ void setup() {
   delay(1000);
   
   wifi.checkVersion();
-  wifi.setUpWebServer();
+  // wifi.setUpWebServer();
   setUpRTC();
 
   mqtt.connect();
@@ -707,7 +732,6 @@ void callback(char *topic, byte *payload, unsigned int len) {
   // Sub A and Sub B value update
   if (strcmp(topic, sub_A) == 0 && START1 == 0 && START2 == 0 && STOP == 0) {
     N_SP.N_A = responseToFloat(payload, len);
-    N_SP.N_A = atoi((char *)payload);
     Serial.println("A set to: " + String(N_SP.N_A));
     R_A = 1;
   }

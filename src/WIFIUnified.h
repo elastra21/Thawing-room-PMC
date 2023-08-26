@@ -9,7 +9,7 @@
 #include <Portenta_H7_AsyncWebServer.h>
 
 #define PORT 4000
-#define OTA_FILE_LOCATION "http://192.168.100.53:4000/download"
+#define OTA_FILE_LOCATION "http://192.168.0.117:4000/download"
 
 class WIFIUnified {
   public:

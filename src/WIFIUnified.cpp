@@ -1,7 +1,7 @@
 #include "WIFIUnified.h"
 
 AsyncWebServer server(80);
-IPAddress IP(192,168,100,53);  // IP address for example.com (no DNS)
+IPAddress IP(192,168,0,117);  // IP address for example.com (no DNS)
 
 Arduino_Portenta_OTA_QSPI ota(QSPI_FLASH_FATFS_MBR, 2);
 Arduino_Portenta_OTA::Error ota_err = Arduino_Portenta_OTA::Error::None;

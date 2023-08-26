@@ -22,6 +22,9 @@ bool MqttClient::isServiceAvailable() {
 
 void MqttClient::reconnect() {
   while (!mqttClient.connected()) {
+    mqttClient.flush();
+    mqttClient.disconnect();
+    mqttClient.setServer(IP_ADDRESS, MQTT_PORT);
     Serial.print("Attempting MQTT connection...");
     if (mqttClient.connect(USERNAME)) {
       Serial.println("connected");
