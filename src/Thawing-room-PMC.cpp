@@ -142,6 +142,8 @@ float getIRTemp();
 void stopRoutine();
 void updateTemperature();
 void setStage(int Stage);
+void setUpDefaulParameters();
+float readTempFrom(uint8_t channel);
 String addressToString(uint8_t *address);
 int responseToInt(byte *value, size_t len);
 float responseToFloat(byte *value, size_t len);
@@ -149,30 +151,9 @@ void callback(char *topic, byte *payload, unsigned int len);  //callback functio
 
 void setup() {
   Serial.begin(115200);
-  // while (!Serial);
-// delay(1000);
-  // Serial.println("No mames Hugo");
+  
+  setUpDefaulParameters();
 
-// Default parameters
-  N_st1.N_f1_st1_ontime = 1;
-  N_st1.N_f1_st1_offtime = 40;
-
-  N_st2.N_f1_st2_ontime = 30;
-  N_st2.N_f1_st2_offtime = 10;
-  N_st2.N_s1_st2_ontime = 1;
-  N_st2.N_s1_st2_offtime = 5;
-
-  N_st3.N_f1_st3_ontime = 10;
-  N_st3.N_f1_st3_offtime = 30;
-  N_st3.N_s1_st3_ontime = 1;
-  N_st3.N_s1_st3_offtime = 15;
-
-  N_tset.N_ts_set = 40;
-  N_tset.N_tc_set = 40;
-
-  N_SP.N_A = 0.5;
-  N_SP.N_B = 20; 
- 
   Wire.begin();
   temp_probes.rtd.begin(THREE_WIRE);
   temp_probes.enableRTD();
@@ -859,14 +840,13 @@ void setUpRTC() {
 void updateTemperature() {
   DateTime now = rtc.now();
 
-  temp_probes.selectChannel(TA_AI);
-  TA = temp_probes.rtd.readTemperature(RNOMINAL, RREF);
+  TA = getProbeTemp(TA_AI);
+  TS = getProbeTemp(TS_AI);
+  TC = getProbeTemp(TC_AI);
 
-  temp_probes.selectChannel(TS_AI);
-  TS = temp_probes.rtd.readTemperature(RNOMINAL, RREF);
-
-  temp_probes.selectChannel(TC_AI);
-  TC = temp_probes.rtd.readTemperature(RNOMINAL, RREF);
+  // TA = readTempFrom(TA_AI);
+  // TS = readTempFrom(TS_AI);
+  // TC = readTempFrom(TC_AI);
 }
 
 String addressToString(uint8_t *address) {
@@ -897,11 +877,16 @@ int responseToInt(byte *value, size_t len) {
 }
 
 float getProbeTemp(uint8_t channel) {
+  temp_probes.selectChannel(channel);
+  float temperature = temp_probes.rtd.readTemperature(RNOMINAL, RREF);
+
+  return temperature;
 }
 
 float getAnalogTemp(uint8_t channel) {
   uint16_t analog_value = analog_inputs.readADC_SingleEnded(TA_AI);  // Ta
   const float temperature = (analog_value - 0) * (50 + 50) / (1024 - 0) - 50;
+
   return temperature;
 }
 
@@ -917,4 +902,35 @@ float getIRTemp() {
 
   temperature = result * 0.02 - 273.15;
   return temperature;
+}
+
+float readTempFrom(uint8_t channel) {
+  const uint16_t raw_voltage_ch = analog_in.read(channel);
+  const float voltage_ch = (raw_voltage_ch * voltage_per_step);
+  // Serial.println(voltage_ch);
+  const float temp = (voltage_ch * temperature_per_step) + TEMPERATURE_MIN;
+  
+  return temp;
+}
+
+void setUpDefaulParameters(){
+  // Default parameters
+  N_st1.N_f1_st1_ontime = 1;
+  N_st1.N_f1_st1_offtime = 40;
+
+  N_st2.N_f1_st2_ontime = 30;
+  N_st2.N_f1_st2_offtime = 10;
+  N_st2.N_s1_st2_ontime = 1;
+  N_st2.N_s1_st2_offtime = 5;
+
+  N_st3.N_f1_st3_ontime = 10;
+  N_st3.N_f1_st3_offtime = 30;
+  N_st3.N_s1_st3_ontime = 1;
+  N_st3.N_s1_st3_offtime = 15;
+
+  N_tset.N_ts_set = 40;
+  N_tset.N_tc_set = 40;
+
+  N_SP.N_A = 0.5;
+  N_SP.N_B = 20; 
 }

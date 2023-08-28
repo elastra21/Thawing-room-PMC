@@ -61,6 +61,16 @@ DeviceAddress ADDRESS_TI = { 0x28, 0x5A, 0xD3, 0x2A, 0x0D, 0x00, 0x00, 0x94 }; /
 // 100.0 for PT100, 1000.0 for PT1000
 #define RNOMINAL  100.0
 
+
+#define TEMPERATURE_MIN  -50 // Minimum temperature value (in Celsius)
+#define TEMPERATURE_MAX  150
+#define ADC__RESOLUTION  65535 
+#define REFERENCE 3.3
+
+const float voltage_per_step = REFERENCE / ADC__RESOLUTION;
+const int16_t range = TEMPERATURE_MAX - TEMPERATURE_MIN;
+const double temperature_per_step = range / REFERENCE;
+
 //------------ structure definitions an flags -------------------------------------------------------->
 // Fan F1 and sprinkler S1 value
 typedef struct { float M_F1; }                            data_F1;
