@@ -143,6 +143,7 @@ void stopRoutine();
 void updateTemperature();
 void setStage(int Stage);
 void setUpDefaulParameters();
+float getProbeTemp(uint8_t channel);
 float readTempFrom(uint8_t channel);
 String addressToString(uint8_t *address);
 int responseToInt(byte *value, size_t len);
@@ -232,18 +233,20 @@ void loop() {
 
   //---- Get surface temperature average with a FIFO buffer ---- //////////////////////////////// Something fuckin' wrong with the average
   if (millis() - ts_avg_timer >= AVG_RESOLUTION) {
-    const bool full_buffer = !(buffer_len < BUFFER_SIZE);
-    const uint8_t index = full_buffer ? buffer_index : buffer_len;
-
-    buffer_sum += TS_F;
-    fifo_buffer[index] = TS_F;
-
-    if (full_buffer) {
-      buffer_sum -= fifo_buffer[index];
-      buffer_index = (index + 1) % BUFFER_SIZE;
-    } else buffer_len++;
-
-    avg_ts = buffer_sum / buffer_len;
+    
+    if (buffer_len < BUFFER_SIZE) { //if buffer not full, we add the value
+        buffer_sum += TS_F;
+        fifo_buffer[buffer_len] = TS_F;
+        buffer_len++;
+      }
+      else { //buffer full, we remove the oldest value and add the new one
+        buffer_sum -= fifo_buffer[buffer_index];
+        fifo_buffer[buffer_index] = TS_F;
+        buffer_sum += TS_F;
+        buffer_index = (buffer_index + 1) % BUFFER_SIZE; // update the buffer index
+      }
+      
+      avg_ts = buffer_sum/buffer_len;
 
     mqtt.publishData(AVG_TS_TOPIC, temp_data.AvgTs_N);
     // Serial.println("Temp data published");
