@@ -844,11 +844,11 @@ void updateTemperature() {
   DateTime now = rtc.now();
 
   TA = getProbeTemp(TA_AI);
-  TS = getProbeTemp(TS_AI);
+  // TS = getProbeTemp(TS_AI);
   TC = getProbeTemp(TC_AI);
 
   // TA = readTempFrom(TA_AI);
-  // TS = readTempFrom(TS_AI);
+  TS = readTempFrom(TS_AI);
   // TC = readTempFrom(TC_AI);
 }
 
@@ -909,10 +909,10 @@ float getIRTemp() {
 
 float readTempFrom(uint8_t channel) {
   const uint16_t raw_voltage_ch = analog_in.read(channel);
-  const float voltage_ch = (raw_voltage_ch * voltage_per_step);
+  // Serial.println(raw_voltage_ch);
+  // const float voltage_ch = (raw_voltage_ch * voltage_per_step);
   // Serial.println(voltage_ch);
-  const float temp = (voltage_ch * temperature_per_step) + TEMPERATURE_MIN;
-  
+  const float temp = (raw_voltage_ch * 0.0016) - 36.099;
   return temp;
 }
 
